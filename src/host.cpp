@@ -73,7 +73,7 @@ void host_draw_ui() {
     oled.display();
 }
 
-/* helper function to hard reset the ESP32 */
+/* helper function to hard reset the ESP32 (code from https://github.com/espressif/arduino-esp32/issues/1270#issuecomment-427597713) */
 void host_reset() {
     esp_task_wdt_init(1, true);
     esp_task_wdt_add(NULL);
