@@ -4,6 +4,9 @@
 #include <limits.h>
 #include <ui.h>
 
+#include <esp_int_wdt.h>
+#include <esp_task_wdt.h>
+
 /* read command byte from Serial */
 char host_read_cmd_byte(bool &args_available) {
     while(1) { // so we can return back to reading command
@@ -68,6 +71,13 @@ void host_draw_ui() {
     oled.setTextColor(SSD1306_BLACK, SSD1306_WHITE); oled.print(F("RESET")); oled.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
     oled.println(F(" to exit."));
     oled.display();
+}
+
+/* helper function to hard reset the ESP32 */
+void host_reset() {
+    esp_task_wdt_init(1, true);
+    esp_task_wdt_add(NULL);
+    while(1);
 }
 
 /* run host interface on Serial until exited by command or reset button */
@@ -166,10 +176,10 @@ void host_interface() {
 #endif
                     host_cmd_reformat();
                 break;
-            case HOST_CMD_EXIT: return;
+            case HOST_CMD_EXIT: host_reset(); // reboot board (easy way out)
             default: break; // invalid command
         }
     }
 
-    ESP.restart(); // reboot board (easy way out)
+    host_reset(); // reboot board (easy way out)
 }
